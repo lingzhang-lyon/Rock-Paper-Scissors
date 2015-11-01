@@ -1,0 +1,47 @@
+<template name="player2">
+  <div class="page" >
+    <div id="status" class = "row">
+      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">   
+        Waiting for other player...
+      </div>
+    </div>
+
+    <div id="countdownboard" class = "row">
+      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">   
+        Count down for <h3 id="count">10</h3> seconds
+      </div>
+    </div>
+
+    <div id="playboard" class = "row">
+      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <form class="choice">
+          <h1>Make your choice</h1>
+          <input type="radio" name="choice" value="rock"> Rock
+          <br>
+          <input type="radio" name="choice" value="paper"> Paper
+          <br>
+          <input type="radio" name="choice" value="scissors"> Scissors
+          <br>
+          <button type="submit" class="btn btn-w-m btn-primary" id="submit"> Submit</button> 
+        </form>
+      </div>
+    </div>   
+
+    
+    <div id="resultboard" class = "row">
+      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <div id="result_panel" class="panel panel-primary">
+            <div class="panel-heading">                
+                <h3>Result:</h3>
+            </div>
+            <div id="result_panel_body" class="panel-body">
+            </div>
+            <!-- end of panel-body -->
+        </div>
+        <!-- end of panel -->
+      </div>
+    </div> 
+
+  </div>
+
+</template>
