@@ -49,22 +49,14 @@ var showResult = function(){
       result_message = "it's a tie";
       console.log("it's a tie");
     }
-    $("#result_panel_body").html(result_message);
+    $("#result_panel_body").html("player1 choose "+player1.choice +
+                                "<br> player2 choose " +player2.choice +
+                                "<br>"+result_message
+    );
     $('#resultboard').show();
     // Meteor.call("updatePlayerStatus", 1, 0);
     Meteor.call("updatePlayerStatus", 2, 0);
 
-};
-
-var observePlayer = function(playerId){
-      return Players.find({player_id: playerId}).observe({
-          changed: function() {
-             console.log('player '+playerId+' changed');
-              $("#status").hide();      
-              showResult();
-              
-          }
-        })    
 };
 
 var observePlayerStatus = function(playerId){
@@ -81,12 +73,12 @@ var observePlayerStatus = function(playerId){
                   showResult();
               }
               else if(player2.status==0 && player1.status==1){
-                $("#status_col").html("Waiting for player2's choice.....")
+                $("#status_col").html("<h1>Waiting for player2's choice.....</h1>")
                 $("#status").show();
                 $("#resultboard").hide();
               }
               else if(player2.status==1 && player1.status==0){
-                $("#status_col").html("Waiting for player1's choice.....")
+                $("#status_col").html("<h1>Waiting for player1's choice.....</h1>")
                 $("#status").show();
                 $("#resultboard").hide();
               }
@@ -112,38 +104,32 @@ var observer=null;
 
 Template.player2.events({
 
-  'submit .choice': function(event, template) {
+  'click .choices': function(event, template) {
     event.preventDefault();
-    var choice = template.find('input:radio[name=choice]:checked');
 
-    console.log("got choice "+choice.value);
-    Meteor.call("updatePlayerChoice", 2, choice.value);
-    // Meteor.call("updatePlayerStatus", 2, 1);
-
+    var choice = event.currentTarget.id;
+    console.log("got choice "+choice);
+    Meteor.call("updatePlayerChoice", 2, choice);
+    // Meteor.call("updatePlayerStatus", 1, 1);
 
     var player1 = Players.findOne({'player_id': 1});
     console.log("current status of player1 is: "+  player1.status);
     var player2 = Players.findOne({'player_id': 2});
     console.log("current status of player2 is: "+  player2.status);
-
     if(player1.status==1 && player2.status==1){
+      $("#status").hide();
       showResult();
-      $("#status").hide(); 
     }
     else{
-      $("#status_col").html("Waiting for player1's choice.....")
+      $("#status_col").html("<h1>Waiting for player1's choice.....<h1>")
       $("#status").show(); 
       $("#resultboard").hide();
 
       if(observer) {
         observer.stop();
       }
-      //observer = observePlayer(1);
       observer = observePlayerStatus(1);
     }
-
-
-
   },
 
   
