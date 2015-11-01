@@ -5,43 +5,26 @@ var compare = function(x, y) {
 	 //if both invalid, then x=y
 		if(x==='rock'){
 			if(y==='scissors') return 1;
-			else if(y==='papers') return -1;
+			else if(y==='paper') return -1;
 			else if(y==='rock') return 0;
 			else return 1; 
 		}
-		if(x==='papers') {
+		if(x==='paper') {
 			if(y==='scissors') return -1;
-			else if(y==='papers') return 0;
+			else if(y==='paper') return 0;
 			else if(y==='rock') return 1;
 			else return 1;			
 		}
 		if(x==='scissors') {
 			if(y==='scissors') return 0;
-			else if(y==='papers') return 1;
+			else if(y==='paper') return 1;
 			else if(y==='rock') return -1;
 			else return 1;			
 		}
 		else{
-			if(y==='rock'||y==='papers'||y==='scissors') return -1;
+			if(y==='rock'||y==='paper'||y==='scissors') return -1;
 			else return 0;
 		}
-
-};
-
-var startCountDown = function(){
-  var counter = 10;
-  setInterval(function() {
-    counter--;
-    if (counter >= 0) {
-    	// Display 'counter' 
-			$("#count").html(counter);
-    }    
-    if (counter === 0) {
-        // alert('this is where it happens');
-        showResult();
-        clearInterval(counter);
-    }
-  }, 1000);
 
 };
 
@@ -49,11 +32,7 @@ var showResult = function(){
 	  var player1 = Players.findOne({'player_id': 1});    
 	  var player2 = Players.findOne({'player_id': 2});
 	  var result;
-	  var result_message;
-	  if(player2.status==0){
-	  	console.log("player2 not activated");
-	  }
-	  
+	  var result_message;	  
   	console.log("player1 choice is "+player1.choice);
   	console.log("player2 choice is "+player2.choice);
   	result = compare(player1.choice, player2.choice);
@@ -70,23 +49,19 @@ var showResult = function(){
   		result_message = "it's a tie";
   		console.log("it's a tie");
   	}
-  	// show result message in both player1 and player2 play_board
-
-
   	$("#result_panel_body").html(result_message);
     $('#resultboard').show();
+    Meteor.call("updatePlayerStatus", 1, 0);
+    // Meteor.call("updatePlayerStatus", 2, 0);
 
 };
 
-var observePlayer2Activated = function(){
-        Players.find({player_id:2}).observe({
+var observePlayer = function(playerId){
+        Players.find({player_id: playerId}).observe({
           changed: function() {
-             console.log('player2 activated');
-               //start count down
-			  			$("#countdownboard").show();
-			  			startCountDown();
+             console.log('player '+playerId+' changed');
 			  			$("#status").hide(); 			
-			  			$("#playboard").show();
+              showResult();
               return true;
           }
         })    
@@ -96,48 +71,10 @@ var observePlayer2Activated = function(){
 
 Template.player1.onRendered(function() {
 		$("#resultboard").hide();
-  	//update status of player1 to active
-  	Meteor.call("updatePlayerStatus", 1, 0);
-  	//observe the status of player2
-  	var p2active = observePlayer2Activated();
-    p2active=true;
-  	
-  	var player2 = Players.find({'player_id': 2});
-    console.log(player2.status);
-  	//once player2 status got changed to activate
-  	//show playboard on both side and start countdown
-
-  	if (!p2active){ 	//not activate
-        console.log('player2 is not activated');	
-  			//show waiting page	
-  	  	$("#status").show();
-  			$("#playboard").hide();
-  			$("#countdownboard").hide();
-  	}
-  	else{ //is activate
-        console.log('player2 is activated');
-         //start count down
-        $("#countdownboard").show();
-        startCountDown();
-        $("#status").hide();      
-        $("#playboard").show();
-
-  	}
+    $("#status").hide();      
+    $("#playboard").show();
 
 });
-
-Template.player1.helpers({
-	'observePlayer2': function(){
-        Players.find({player_id:2}).observe({
-          changed: function() {
-             console.log('player2 changed');
-              return "player2 has changed";
-          }
-        })    
-  },
-
-});
-
 
 
 Template.player1.events({
@@ -148,6 +85,19 @@ Template.player1.events({
 
     console.log("got choice "+choice.value);
     Meteor.call("updatePlayerChoice", 1, choice.value);
+    Meteor.call("updatePlayerStatus", 1, 1);
+
+    var player2 = Players.findOne({'player_id': 2});
+    console.log("current status of player2 is: "+  player2.status);
+    if(player2.status==1){
+      showResult();
+    }
+    else{
+      $("#status").show(); 
+      // $("#resultboard").hide();
+      observePlayer(2);
+    }
+
 
 
   },
